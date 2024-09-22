@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFHL API Frontend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 8px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        #result p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>BFHL API Frontend</h1>
+
+    <label for="data">Enter a list of numbers and letters (comma-separated):</label>
+    <input type="text" id="data" placeholder="e.g. 1, a, 2, b, A, 3, Z">
+    <button onclick="submitData()">Submit</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function submitData() {
+            // Get the input value and split it into an array
+            const inputData = document.getElementById('data').value.split(',').map(item => item.trim());
+
+            // Prepare the request body
+            const requestBody = {
+                data: inputData
+            };
+
+            try {
+                // Send the POST request to the API
+                const response = await fetch('/bfhl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                // Parse the JSON response
+                const result = await response.json();
+
+                // Display the result on the page
+                document.getElementById('result').innerHTML = `
+                    <p><strong>Success:</strong> ${result.is_success}</p>
+                    <p><strong>User ID:</strong> ${result.user_id}</p>
+                    <p><strong>Email:</strong> ${result.email}</p>
+                    <p><strong>Roll Number:</strong> ${result.roll_number}</p>
+                    <p><strong>Numbers:</strong> ${result.numbers.join(', ')}</p>
+                    <p><strong>Alphabets:</strong> ${result.alphabets.join(', ')}</p>
+                    <p><strong>Highest Alphabet:</strong> ${result.highest_alphabet.join(', ')}</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p>Error: Unable to fetch results. Please try again.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
